@@ -17,6 +17,16 @@ public class Board {
     }
 
 
+    public void markControlledFields(boolean isWhite, ControlledFieldsBoard cfBoard) {
+        for (int i = 0; i < BOARD_SIZE; i++) {
+            for (int k = 0; k < BOARD_SIZE; k++) {
+                if (pieceArr[i][k] != noPiece && pieceArr[i][k].isWhite() == isWhite) {
+                    pieceArr[i][k].markFieldsAsControlled(i, k, this, cfBoard);
+                }
+            }
+        }
+    }
+
     public void createEmptyBoard() {
         for (int i = 0; i < BOARD_SIZE; i++) {
             for (int k = 0; k < BOARD_SIZE; k++) {

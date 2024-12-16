@@ -2,7 +2,6 @@ package ed.d.chessboard.pieces;
 
 import ed.d.chessboard.Board;
 import ed.d.chessboard.ControlledFieldsBoard;
-import ed.d.chessboard.Coord;
 
 public class NoPiece extends AbstractPiece {
 
@@ -13,8 +12,8 @@ public class NoPiece extends AbstractPiece {
     }
 
     @Override
-    public ControlledFieldsBoard markFieldsAsControlled(Coord pieceCoord, Board board, ControlledFieldsBoard cfBoard) {
-        return cfBoard;
+    public void markFieldsAsControlled(int hor, int vert, Board board, ControlledFieldsBoard cfBoard) {
+
     }
 
     @Override

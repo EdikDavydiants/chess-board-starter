@@ -2,6 +2,7 @@ package ed.d.chessboard.pieces;
 
 import ed.d.chessboard.Board;
 import ed.d.chessboard.ControlledFieldsBoard;
+import ed.d.chessboard.Coord;
 
 public class Bishop extends AbstractPiece {
 
@@ -33,5 +34,16 @@ public class Bishop extends AbstractPiece {
         for (int i = 1; hor - i >= 0 && vert + i < Board.BOARD_SIZE; i++) {
             if(markField(hor - i, vert + i, board, cfBoard)) { break; }
         }
+    }
+
+    @Override
+    public boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord) {
+        return Math.abs(pieceCoord.getHor() - moveCoord.getHor()) ==
+                Math.abs(pieceCoord.getVert() - moveCoord.getVert());
+    }
+
+    @Override
+    public boolean obstacleChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return checkObstacleForLongRangePiece(pieceCoord, moveCoord, board);
     }
 }

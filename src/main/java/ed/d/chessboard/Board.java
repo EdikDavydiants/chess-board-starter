@@ -35,6 +35,10 @@ public class Board {
         }
     }
 
+    public boolean isOutOfBounds(int hor, int vert) {
+        return hor >= Board.BOARD_SIZE || vert >= Board.BOARD_SIZE || hor < 0 || vert < 0;
+    }
+
     public void setPiece(int hor, int vert, AbstractPiece piece) {
         pieceArr[hor][vert] = piece;
     }

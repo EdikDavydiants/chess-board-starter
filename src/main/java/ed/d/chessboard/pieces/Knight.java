@@ -27,9 +27,19 @@ public class Knight extends AbstractPiece {
     }
 
     @Override
+    public AbstractPiece createClone() {
+        return new Knight(isWhite());
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return true;
+    }
+
+    @Override
     public boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord) {
         int absHorDelta = Math.abs(pieceCoord.getHor() - moveCoord.getHor());
-        int absVertDelta = Math.abs(pieceCoord.getHor() - moveCoord.getHor());
+        int absVertDelta = Math.abs(pieceCoord.getVert() - moveCoord.getVert());
         return (absHorDelta == 1 && absVertDelta == 2) || (absHorDelta == 2 && absVertDelta == 1);
     }
 

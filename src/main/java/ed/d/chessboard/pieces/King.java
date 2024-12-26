@@ -5,15 +5,17 @@ import ed.d.chessboard.ControlledFieldsBoard;
 import ed.d.chessboard.Coord;
 import lombok.Getter;
 
+import static ed.d.chessboard.Board.BOARD_SIZE;
 import static ed.d.chessboard.pieces.NoPiece.noPiece;
 
 @Getter
 public class King extends AbstractPiece {
 
-    private boolean hasBeenMoved = false;
+    private boolean hasBeenMoved;
 
-    public King(boolean isWhite) {
+    public King(boolean isWhite, boolean hasBeenMoved) {
         super(isWhite);
+        this.hasBeenMoved = hasBeenMoved;
     }
 
     @Override
@@ -31,71 +33,153 @@ public class King extends AbstractPiece {
     }
 
     @Override
+    public AbstractPiece createClone() {
+        return new King(isWhite(), hasBeenMoved);
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+
+        if (isTryingCastling(pieceCoord, moveCoord)) {
+            return !isKingUnderAttackBeforeMove(pieceCoord, board) && !isHasBeenMoved();
+        }
+        return true;
+    }
+
+    private boolean isKingUnderAttackBeforeMove(Coord pieceCoord, Board board) {
+
+        var cfBoard = new ControlledFieldsBoard();
+        board.markControlledFields(!isWhite(), cfBoard);
+        return cfBoard.getFieldsArr()[pieceCoord.getHor()][pieceCoord.getVert()] != 0;
+    }
+
+    @Override
     public boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord) {
+        return isOrdinaryMove(pieceCoord, moveCoord) || isTryingCastling(pieceCoord, moveCoord);
+    }
 
-        boolean isOrdinaryMove =
-                pieceCoord.getHor() - moveCoord.getHor() <= 1 &&
-                pieceCoord.getHor() - moveCoord.getHor() >= -1 &&
-                pieceCoord.getVert() - moveCoord.getVert() <= 1 &&
-                pieceCoord.getVert() - moveCoord.getVert() >= -1;
-
-        if (isOrdinaryMove) { return true; }
-
-        return isTryingCastling(pieceCoord, moveCoord);
+    private boolean isOrdinaryMove(Coord pieceCoord, Coord moveCoord) {
+        return pieceCoord.getHor() - moveCoord.getHor() <= 1 &&
+               pieceCoord.getHor() - moveCoord.getHor() >= -1 &&
+               pieceCoord.getVert() - moveCoord.getVert() <= 1 &&
+               pieceCoord.getVert() - moveCoord.getVert() >= -1;
     }
 
     @Override
     public boolean obstacleChecking(Coord pieceCoord, Coord moveCoord, Board board) {
 
-        if (isTryingShortCastling(pieceCoord, moveCoord)) {
-            if (isWhite()) {
-                return board.getPiece(0, 5).isEmpty() &&
-                        board.getPiece(0, 6).isEmpty();
-            } else {
-                return board.getPiece(Board.BOARD_SIZE - 1, 5).isEmpty() &&
-                        board.getPiece(Board.BOARD_SIZE - 1, 6).isEmpty();
-            }
-        } else if (isTryingLongCastling(pieceCoord, moveCoord)) {
-            if (isWhite()) {
-                return board.getPiece(0, 1).isEmpty() &&
-                        board.getPiece(0, 2).isEmpty();
-            } else {
-                return board.getPiece(Board.BOARD_SIZE - 1, 1).isEmpty() &&
-                        board.getPiece(Board.BOARD_SIZE - 1, 2).isEmpty();
-            }
-        } else {
+        if (isOrdinaryMove(pieceCoord, moveCoord)) {
             var piece = board.getPiece(moveCoord.getHor(), moveCoord.getVert());
             return piece == noPiece || piece.isWhite() != isWhite();
         }
+
+        if (isTryingCastling(pieceCoord, moveCoord)) {
+            Coord[] coords = getFieldsMustBeEmptyForCastling(isTryingShortCastling(pieceCoord, moveCoord));
+            for (Coord coord : coords) {
+                if (!board.getPiece(coord).isEmpty()) {
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 
     private boolean isTryingCastling(Coord pieceCoord, Coord moveCoord) {
-        if (isWhite()) {
-            return pieceCoord.getHor() == 0 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == 0 && (moveCoord.getVert() == 2 || moveCoord.getVert() == 6);
-        } else {
-            return pieceCoord.getHor() == Board.BOARD_SIZE - 1 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == Board.BOARD_SIZE - 1 && (moveCoord.getVert() == 2 || moveCoord.getVert() == 6);
-        }
+
+        int hor;
+        if (isWhite()) { hor = 0; }
+        else { hor = BOARD_SIZE - 1; }
+
+        return pieceCoord.getHor() == hor && pieceCoord.getVert() == 3 &&
+                moveCoord.getHor() == hor && (moveCoord.getVert() == 1 || moveCoord.getVert() == 5);
     }
 
     private boolean isTryingShortCastling(Coord pieceCoord, Coord moveCoord) {
-        if (isWhite()) {
-            return pieceCoord.getHor() == 0 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == 0 && moveCoord.getVert() == 6;
-        } else {
-            return pieceCoord.getHor() == Board.BOARD_SIZE - 1 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == Board.BOARD_SIZE - 1 && moveCoord.getVert() == 6;
-        }
+
+        int hor;
+        if (isWhite()) { hor = 0; }
+        else { hor = BOARD_SIZE - 1; }
+
+        return pieceCoord.getHor() == hor && pieceCoord.getVert() == 3 &&
+                moveCoord.getHor() == hor && moveCoord.getVert() == 1;
     }
 
     private boolean isTryingLongCastling(Coord pieceCoord, Coord moveCoord) {
-        if (isWhite()) {
-            return pieceCoord.getHor() == 0 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == 0 && moveCoord.getVert() == 2;
+
+        int hor;
+        if (isWhite()) { hor = 0; }
+        else { hor = BOARD_SIZE - 1; }
+
+        return pieceCoord.getHor() == hor && pieceCoord.getVert() == 3 &&
+                moveCoord.getHor() == hor && moveCoord.getVert() == 5;
+    }
+
+    private boolean isCastleCorrect(Coord pieceCoord, Coord moveCoord, Board board) {
+
+        int hor = pieceCoord.getHor();
+        boolean isTryingShortCastling = isTryingShortCastling(pieceCoord, moveCoord);
+        if (isTryingShortCastling) {
+            if (isRookThatHasMoved(board.getPiece(hor, 0))) {
+                return false;
+            }
         } else {
-            return pieceCoord.getHor() == Board.BOARD_SIZE - 1 && pieceCoord.getVert() == 5 &&
-                    moveCoord.getHor() == Board.BOARD_SIZE - 1 && moveCoord.getVert() == 2;
+            if (isRookThatHasMoved(board.getPiece(hor, BOARD_SIZE))) {
+                return false;
+            }
+        }
+
+        var cfBoard = new ControlledFieldsBoard();
+        board.markControlledFields(!isWhite(), cfBoard);
+
+        Coord[] coords = getFieldsMustBeNotAttackedForCastling(isTryingShortCastling);
+
+        for (Coord coord : coords) {
+            if (cfBoard.getFieldsArr()[coord.getHor()][coord.getVert()] != 0) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    private boolean isRookThatHasMoved(AbstractPiece piece) {
+        if (piece instanceof Rook rook) {
+            return rook.isHasBeenMoved();
+        } else { return false; }
+    }
+
+    private Coord[] getFieldsMustBeNotAttackedForCastling(boolean isShortCastling) {
+
+        if (isWhite()) {
+            if (isShortCastling) {
+                return new Coord[] {new Coord(0, 1), new Coord(0, 2)};
+            } else {
+                return new Coord[] {new Coord(0, 5), new Coord(0, 4)};
+            }
+        } else {
+            if (isShortCastling) {
+                return new Coord[] {new Coord(7, 1), new Coord(7, 2)};
+            } else {
+                return new Coord[] {new Coord(7, 5), new Coord(7, 4)};
+            }
+        }
+    }
+
+    private Coord[] getFieldsMustBeEmptyForCastling(boolean isShortCastling) {
+
+        if (isWhite()) {
+            if (isShortCastling) {
+                return new Coord[] {new Coord(0, 1), new Coord(0, 2)};
+            } else {
+                return new Coord[] {new Coord(0, 6), new Coord(0, 5), new Coord(0, 4)};
+            }
+        } else {
+            if (isShortCastling) {
+                return new Coord[] {new Coord(7, 1), new Coord(7, 2)};
+            } else {
+                return new Coord[] {new Coord(7, 6), new Coord(7, 5), new Coord(7, 4)};
+            }
         }
     }
 }

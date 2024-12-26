@@ -3,15 +3,17 @@ package ed.d.chessboard.pieces;
 import ed.d.chessboard.Board;
 import ed.d.chessboard.ControlledFieldsBoard;
 import ed.d.chessboard.Coord;
+import lombok.Builder;
 import lombok.Getter;
 
 @Getter
 public class Rook extends AbstractPiece {
 
-    private boolean hasBeenMoved = false;
+    private boolean hasBeenMoved;
 
-    public Rook(boolean isWhite) {
+    public Rook(boolean isWhite, boolean hasBeenMoved) {
         super(isWhite);
+        this.hasBeenMoved = hasBeenMoved;
     }
 
 
@@ -40,6 +42,16 @@ public class Rook extends AbstractPiece {
         for (int i = 1; vert - i >= 0; i++) {
             if(markField(hor, vert - i, board, cfBoard)) { break; }
         }
+    }
+
+    @Override
+    public AbstractPiece createClone() {
+        return new Rook(isWhite(), hasBeenMoved);
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return true;
     }
 
     @Override

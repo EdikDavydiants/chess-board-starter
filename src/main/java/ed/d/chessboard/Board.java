@@ -1,8 +1,11 @@
 package ed.d.chessboard;
 
 import ed.d.chessboard.pieces.AbstractPiece;
+import ed.d.chessboard.pieces.Bishop;
+import ed.d.chessboard.pieces.Utils;
 
 import static ed.d.chessboard.pieces.NoPiece.noPiece;
+import static ed.d.chessboard.pieces.Utils.boardIteration;
 
 public class Board {
 
@@ -11,28 +14,46 @@ public class Board {
     private final AbstractPiece[][] pieceArr;
 
 
-    public Board() {
+    private Board() {
         pieceArr = new AbstractPiece[BOARD_SIZE][BOARD_SIZE];
-        createEmptyBoard();
+        setEmptyPosition();
     }
 
+    public static Board createEmptyBoard() {
+        return new Board();
+    }
+
+    public static Board createCloneBoard(Board board) {
+
+        final var boardClone = new Board();
+        boardIteration((i, k) -> boardClone.setPiece(i, k, board.getPiece(i, k).createClone()));
+        return boardClone;
+    }
+
+    public boolean isKingUnderAttackAfterMove(Coord pieceCoord, Coord moveCoord) {
+
+        var cloneBoard = Board.createCloneBoard(this);
+
+        makeMove(pieceCoord, moveCoord);
+
+        return false;
+    }
+
+    private void makeMove(Coord pieceCoord, Coord moveCoord) {
+
+    }
 
     public void markControlledFields(boolean isWhite, ControlledFieldsBoard cfBoard) {
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int k = 0; k < BOARD_SIZE; k++) {
-                if (pieceArr[i][k] != noPiece && pieceArr[i][k].isWhite() == isWhite) {
-                    pieceArr[i][k].markFieldsAsControlled(i, k, this, cfBoard);
-                }
+
+        boardIteration((i, k) -> {
+            if (pieceArr[i][k] != noPiece && pieceArr[i][k].isWhite() == isWhite) {
+                pieceArr[i][k].markFieldsAsControlled(i, k, this, cfBoard);
             }
-        }
+        });
     }
 
-    public void createEmptyBoard() {
-        for (int i = 0; i < BOARD_SIZE; i++) {
-            for (int k = 0; k < BOARD_SIZE; k++) {
-                pieceArr[i][k] = noPiece;
-            }
-        }
+    public void setEmptyPosition() {
+        boardIteration((i, k) -> pieceArr[i][k] = noPiece);
     }
 
     public boolean isOutOfBounds(int hor, int vert) {

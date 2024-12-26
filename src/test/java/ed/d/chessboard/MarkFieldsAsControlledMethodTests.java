@@ -1,15 +1,8 @@
 package ed.d.chessboard;
 
-import ed.d.chessboard.pieces.AbstractPiece;
-import ed.d.chessboard.pieces.Bishop;
-import ed.d.chessboard.pieces.King;
-import ed.d.chessboard.pieces.Knight;
-import ed.d.chessboard.pieces.Pawn;
-import ed.d.chessboard.pieces.Queen;
-import ed.d.chessboard.pieces.Rook;
 import org.junit.jupiter.api.Test;
 
-import static ed.d.chessboard.pieces.NoPiece.noPiece;
+import static ed.d.chessboard.TestUtils.getPositionFromByteArr;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class MarkFieldsAsControlledMethodTests {
@@ -185,7 +178,6 @@ class MarkFieldsAsControlledMethodTests {
 		};
 		Board board = getPositionFromByteArr(posBytes);
 
-
 		var cfBoard = new ControlledFieldsBoard();
 		board.markControlledFields(true, cfBoard);
 		board.markControlledFields(false, cfBoard);
@@ -202,38 +194,4 @@ class MarkFieldsAsControlledMethodTests {
 		};
 		assertArrayEquals(expectArray, cfBoard.getFieldsArr());
 	}
-
-
-	private Board getPositionFromByteArr(byte[][] position) {
-
-		var board = new Board();
-		for (int i = 0; i < Board.BOARD_SIZE; i++) {
-			for (int k = 0; k < Board.BOARD_SIZE; k++) {
-				board.setPiece(i, k, getPieceFromByte(position[i][k]));
-			}
-		}
-		return board;
-	}
-
-	private AbstractPiece getPieceFromByte(byte pieceByte) {
-
-		return switch (pieceByte) {
-			case 'P' -> new Pawn(true);
-			case 'N' -> new Knight(true);
-			case 'B' -> new Bishop(true);
-			case 'R' -> new Rook(true);
-			case 'Q' -> new Queen(true);
-			case 'K' -> new King(true);
-
-			case 'p' -> new Pawn(false);
-			case 'n' -> new Knight(false);
-			case 'b' -> new Bishop(false);
-			case 'r' -> new Rook(false);
-			case 'q' -> new Queen(false);
-			case 'k' -> new King(false);
-
-			default -> noPiece;
-		};
-	}
-
 }

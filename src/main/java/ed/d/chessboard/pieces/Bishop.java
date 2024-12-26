@@ -16,6 +16,16 @@ public class Bishop extends AbstractPiece {
         markNegDiagonal(hor, vert, board, cfBoard);
     }
 
+    @Override
+    public AbstractPiece createClone() {
+        return new Bishop(isWhite());
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return true;
+    }
+
     private void markPosDiagonal(int hor, int vert, Board board, ControlledFieldsBoard cfBoard) {
 
         for (int i = 1; hor + i < Board.BOARD_SIZE && vert + i < Board.BOARD_SIZE; i++) {

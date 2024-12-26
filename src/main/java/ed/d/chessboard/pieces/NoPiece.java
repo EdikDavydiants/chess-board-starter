@@ -18,6 +18,16 @@ public class NoPiece extends AbstractPiece {
     }
 
     @Override
+    public AbstractPiece createClone() {
+        return this;
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return false;
+    }
+
+    @Override
     public boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord) {
         return false;
     }

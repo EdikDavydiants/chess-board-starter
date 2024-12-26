@@ -20,6 +20,16 @@ public class Queen extends AbstractPiece {
         markNegDiagonal(hor, vert, board, cfBoard);
     }
 
+    @Override
+    public AbstractPiece createClone() {
+        return new Queen(isWhite());
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return true;
+    }
+
     private void markVertical(int hor, int vert, Board board, ControlledFieldsBoard cfBoard) {
 
         for (int i = 1; hor + i < Board.BOARD_SIZE; i++) {

@@ -22,17 +22,17 @@ public abstract class AbstractPiece {
         if (board.isOutOfBounds(moveCoord.getHor(), moveCoord.getVert())) {
             throw new RuntimeException("Move coord is out of bounds!");
         }
-        if (pieceCoord.equals(moveCoord)) {
-            return false;
-        }
-        if (!isMoveGeometryCorrect(pieceCoord, moveCoord)) {
-            return false;
-        }
-        if (!obstacleChecking(pieceCoord, moveCoord, board)) {
-            return false;
-        }
+        if (pieceCoord.equals(moveCoord)) { return false; }
+        if (!isMoveGeometryCorrect(pieceCoord, moveCoord)) { return false; }
+        if (!obstacleChecking(pieceCoord, moveCoord, board)) { return false; }
+        if (!additionalChecking(pieceCoord, moveCoord, board)) { return false; }
+        //if (!board.isKingUnderAttackAfterMove(pieceCoord, moveCoord)) { return false; }
         return true;
     }
+
+    public abstract AbstractPiece createClone();
+
+    public abstract boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board);
 
     public abstract boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord);
 

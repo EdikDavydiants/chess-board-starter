@@ -4,16 +4,19 @@ import ed.d.chessboard.Board;
 import ed.d.chessboard.ControlledFieldsBoard;
 import ed.d.chessboard.Coord;
 import lombok.Getter;
+import lombok.Setter;
 
 import static ed.d.chessboard.pieces.NoPiece.noPiece;
 
 @Getter
+@Setter
 public class Pawn extends AbstractPiece {
 
-    private boolean isTheLastMoveLong = false;
+    private boolean isTheLastMoveLong;
 
-    public Pawn(boolean isWhite) {
+    public Pawn(boolean isWhite, boolean isTheLastMoveLong) {
         super(isWhite);
+        this.isTheLastMoveLong = isTheLastMoveLong;
     }
 
     @Override
@@ -29,9 +32,19 @@ public class Pawn extends AbstractPiece {
     }
 
     @Override
+    public AbstractPiece createClone() {
+        return new Pawn(isWhite(), isTheLastMoveLong);
+    }
+
+    @Override
+    public boolean additionalChecking(Coord pieceCoord, Coord moveCoord, Board board) {
+        return true;
+    }
+
+    @Override
     public boolean isMoveGeometryCorrect(Coord pieceCoord, Coord moveCoord) {
         int horDelta = moveCoord.getHor() - pieceCoord.getHor();
-        int vertDelta = moveCoord.getHor() - pieceCoord.getHor();
+        int vertDelta = moveCoord.getVert() - pieceCoord.getVert();
         if (isWhite()) {
             if (pieceCoord.getHor() == 1) {
                 return vertDelta == 0 && (horDelta == 2 || horDelta == 1) ||
@@ -75,7 +88,7 @@ public class Pawn extends AbstractPiece {
             if (board.getPiece(hor, vert).isNoEmptyAndColorIs(isWhite())) {
                 return false;
             } else if (board.getPiece(hor, vert).isEmpty()) {
-                AbstractPiece piece = board.getPiece(pieceCoord.getHor(), moveCoord.getVert());
+                var piece = board.getPiece(pieceCoord.getHor(), moveCoord.getVert());
                 return piece.isTheLastMoveLongIfPawn() && piece.isWhite() != isWhite();
             }
         }
